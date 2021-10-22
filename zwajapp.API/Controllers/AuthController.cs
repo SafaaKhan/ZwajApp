@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -13,8 +14,9 @@ using zwajapp.API.Models;
 namespace zwajapp.API.Controllers
 {
 
-  [ApiController]
+  [AllowAnonymous]
   [Route("api/[controller]")]
+  [ApiController]
   public class AuthController : ControllerBase
   {
     private readonly IAuthRepository _authRepo;
@@ -51,7 +53,7 @@ namespace zwajapp.API.Controllers
     [HttpPost("login")]
     public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
     {
-      
+
       var userFromRepo = await _authRepo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
       if (userFromRepo == null)
       {

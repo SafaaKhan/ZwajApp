@@ -10,5 +10,6 @@ namespace zwajapp.API.Data
 
     public DbSet<WeatherForecast> WeatherForecasts { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Photo> Photos { get; set; }
   }
 }

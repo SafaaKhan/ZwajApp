@@ -20,6 +20,7 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using zwajapp.API.Helpers;
+using AutoMapper;
 
 namespace zwajapp.API
 {
@@ -37,13 +38,19 @@ namespace zwajapp.API
     {
       services.AddDbContext<DataContext>(options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
-      services.AddControllers();
+      services.AddControllers().AddNewtonsoftJson(option =>
+      {
+        option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+      });
       services.AddSwaggerGen(c =>
       {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "zwajapp.API", Version = "v1" });
       });
       services.AddCors();
+      services.AddAutoMapper((typeof(Startup)));//how to user automapper in core5
+      services.AddTransient<TrialData>();
       services.AddScoped<IAuthRepository, AuthRepository>();
+      services.AddScoped<IZwajRepository, ZwajRepository>();
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
       AddJwtBearer(Options =>
       {
@@ -60,7 +67,7 @@ namespace zwajapp.API
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, TrialData trialData)
     {
       if (env.IsDevelopment())
       {
@@ -94,7 +101,7 @@ namespace zwajapp.API
       app.UseAuthentication();
 
       app.UseAuthorization();
-
+      trialData.TrialUsers();
       app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
       app.UseEndpoints(endpoints =>
